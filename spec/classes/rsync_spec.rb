@@ -126,11 +126,8 @@ describe 'rsync' do
     end
   end
 
-  describe 'Test service autorestart', :broken => true do
-    it 'should automatically restart the service, by default' do
-      content = catalogue.resource('file', 'rsync.conf').send(:parameters)[:notify]
-      content.should == 'Service[rsync]{:name=>"rsync"}'
-    end
+  describe 'Test service autorestart' do
+    it { should contain_file('rsync.conf').with_notify('Service[rsync]') }
   end
 
   describe 'Test service autorestart' do
