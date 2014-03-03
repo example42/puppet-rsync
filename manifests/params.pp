@@ -21,11 +21,12 @@ class rsync::params {
   }
 
   $service = $::operatingsystem ? {
-    default => 'rsync',
+    /(?i)FreeBSD/ => 'rsyncd',
+    default       => 'rsync',
   }
 
   $service_status = $::operatingsystem ? {
-    default => true,
+    default       => true,
   }
 
   $process = $::operatingsystem ? {
@@ -41,11 +42,13 @@ class rsync::params {
   }
 
   $config_dir = $::operatingsystem ? {
-    default => '/etc/rsync',
+    /(?i)FreeBSD/ => '/usr/local/etc/rsyncd',
+    default       => '/etc/rsync',
   }
 
   $config_file = $::operatingsystem ? {
-    default => '/etc/rsyncd.conf',
+    /(?i)FreeBSD/ => '/usr/local/etc/rsyncd.conf',
+    default       => '/etc/rsyncd.conf',
   }
 
   $config_file_mode = $::operatingsystem ? {
@@ -57,7 +60,8 @@ class rsync::params {
   }
 
   $config_file_group = $::operatingsystem ? {
-    default => 'root',
+    /(?i)FreeBSD/ => 'wheel',
+    default       => 'root',
   }
 
   $config_file_init = $::operatingsystem ? {
@@ -70,7 +74,8 @@ class rsync::params {
   }
 
   $data_dir = $::operatingsystem ? {
-    default => '/etc/rsync',
+    /(?i)FreeBSD/ => '/usr/local/etc/rsyncd',
+    default       => '/etc/rsync',
   }
 
   $log_dir = $::operatingsystem ? {
