@@ -26,8 +26,7 @@ describe 'rsync' do
     it { should contain_service('rsync').with_enable('true') }
     it { should contain_file('rsync.conf').with_ensure('present') }
     it 'should monitor the process' do
-      content = catalogue.resource('monitor::process', 'rsync_process').send(:parameters)[:enable]
-      content.should == true
+      should contain_monitor__process('rsync_process').with_enable('true')
     end
     it 'should place a firewall rule' do
       content = catalogue.resource('firewall', 'rsync_tcp_42').send(:parameters)[:enable]
@@ -59,10 +58,7 @@ describe 'rsync' do
     it 'should stop Service[rsync]' do should contain_service('rsync').with_ensure('stopped') end
     it 'should not enable at boot Service[rsync]' do should contain_service('rsync').with_enable('false') end
     it { should contain_file('rsync.conf').with_ensure('present') }
-    it 'should not monitor the process' do
-      content = catalogue.resource('monitor::process', 'rsync_process').send(:parameters)[:enable]
-      content.should == false
-    end
+    it { should contain_monitor__process('rsync_process').with_enable('false') }
     it 'should remove a firewall rule' do
       content = catalogue.resource('firewall', 'rsync_tcp_42').send(:parameters)[:enable]
       content.should == false
@@ -77,14 +73,8 @@ describe 'rsync' do
     it { should_not contain_service('rsync').with_ensure('absent') }
     it 'should not enable at boot Service[rsync]' do should contain_service('rsync').with_enable('false') end
     it { should contain_file('rsync.conf').with_ensure('present') }
-    it 'should not monitor the process locally' do
-      content = catalogue.resource('monitor::process', 'rsync_process').send(:parameters)[:enable]
-      content.should == false
-    end
-    it 'should keep a firewall rule' do
-      content = catalogue.resource('firewall', 'rsync_tcp_42').send(:parameters)[:enable]
-      content.should == true
-    end
+    it { should contain_monitor__process('rsync_process').with_enable('false') }
+    it { should contain_firewall('rsync_tcp_42').with_enable('true') }
   end 
 
   describe 'Test customizations - template' do
@@ -150,19 +140,14 @@ describe 'rsync' do
 
   describe 'Test Monitoring Tools Integration' do
     let(:params) { {:monitor => true, :monitor_tool => "puppi" } }
-
-    it 'should generate monitor defines' do
-      content = catalogue.resource('monitor::process', 'rsync_process').send(:parameters)[:tool]
-      content.should == "puppi"
-    end
+    it { should contain_monitor__process('rsync_process').with_tool('puppi') }
   end
 
   describe 'Test Firewall Tools Integration' do
     let(:params) { {:firewall => true, :firewall_tool => "iptables" , :protocol => "tcp" , :port => "42" } }
 
     it 'should generate correct firewall define' do
-      content = catalogue.resource('firewall', 'rsync_tcp_42').send(:parameters)[:tool]
-      content.should == "iptables"
+      should contain_firewall('rsync_tcp_42').with_tool('iptables')
     end
   end
 
@@ -203,25 +188,4 @@ describe 'rsync' do
     end
   end
 
-  describe 'Test params lookup' do
-    let(:facts) { { :monitor => false , :rsync_monitor => true , :ipaddress => '10.42.42.42' } }
-    let(:params) { { :port => '42' } }
-
-    it 'should honour top scope module specific over global vars' do
-      content = catalogue.resource('monitor::process', 'rsync_process').send(:parameters)[:enable]
-      content.should == true
-    end
-  end
-
-  describe 'Test params lookup' do
-    let(:facts) { { :monitor => false , :ipaddress => '10.42.42.42' } }
-    let(:params) { { :monitor => true , :firewall => true, :port => '42' } }
-
-    it 'should honour passed params over global vars' do
-      content = catalogue.resource('monitor::process', 'rsync_process').send(:parameters)[:enable]
-      content.should == true
-    end
-  end
-
 end
-
