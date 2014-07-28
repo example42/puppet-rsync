@@ -44,13 +44,14 @@
 #   Baptiste Grenier <baptiste@bapt.name>
 define rsync::get (
   $source,
-  $path     = undef,
-  $user     = undef,
-  $purge    = undef,
-  $exclude  = undef,
-  $keyfile  = undef,
-  $timeout  = '900',
-  $execuser = 'root',
+  $path       = undef,
+  $user       = undef,
+  $purge      = undef,
+  $purgeAfter = undef,
+  $exclude    = undef,
+  $keyfile    = undef,
+  $timeout    = '900',
+  $execuser   = 'root',
 ) {
 
   if $keyfile {
@@ -64,7 +65,11 @@ define rsync::get (
   }
 
   if $purge {
-    $MyPurge = '--delete'
+    if $purgeAfter {
+      $MyPurge = '--delete-after'
+    } else {
+      $MyPurge = '--delete'
+    }
   }
 
   if $exclude {
